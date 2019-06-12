@@ -9,6 +9,7 @@
     <link rel="stylesheet" type="text/css" href="css/reset.css">
     <link rel="stylesheet" type="text/css" href="css/iconfont.css">
     <link rel="stylesheet" type="text/css" href="css/main.css">
+    <link rel="stylesheet" href="./js/bootstrap/css/bootstrap.min.css">
 </head>
 
 <body>
@@ -29,8 +30,85 @@
             </form>
         </div>
 
-    </div> 
+    </div>
+    <!--提示框的引入-->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">提示!!!!</h4>
+                </div>
+                <div class="modal-body">
 
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary">确认</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入jQ文件 -->
+    <script src="./js/jquery-1.12.4.min.js"></script>
+
+    <script src="./js/bootstrap/js/bootstrap.min.js"></script>
+
+    <script>
+        //入口函数
+
+        $(function () {
+
+            //给按钮加点击事件
+
+            $(".input_sub").on("click", function (e) {
+                //去销按钮的默认行为
+                e.preventDefault()
+                //获取用户输入的值
+
+                var user_name = $(".input_txt").val().trim();
+                var password = $(".input_pass").val().trim();
+                console.log(user_name);
+                console.log(password);
+
+                //发送ajax请求
+                $.ajax({
+
+                    type: "post",
+
+                    url: "https://autumnfish.cn/big/admin/login",
+
+                    data: {
+
+                        user_name: user_name,
+                        password: password,
+                    },
+
+                    success: function (backData) {
+
+                        console.log(backData);
+
+
+                        if (backData.code != 200) {
+
+                            $('.modal-body').text("账户或者密码错误");
+                            $('#myModal').modal();
+
+
+                        } else {
+
+                            window.location.href = "./index.html"
+                        }
+
+                    }
+
+                })
+
+            })
+        })
+    </script>
 </body>
 
 </html>
