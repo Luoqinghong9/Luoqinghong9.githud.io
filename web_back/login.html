@@ -94,7 +94,11 @@
                         if (backData.code != 200) {
 
                             $('.modal-body').text("账户或者密码错误");
-                            $('#myModal').modal();
+
+                            $('#myModal').modal({
+                                
+                                keycode:true
+                            });
 
 
                         } else {
