@@ -24,19 +24,19 @@
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">用户名称：</label>
                     <div class="col-sm-4">
-                        <input type="text" class="form-control" id="inputEmail3" value="李思思">
+                        <input type="text" name='username' class="form-control username" id="inputEmail3" value="李思思">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">昵称：</label>
                     <div class="col-sm-4">
-                        <input type="text" class="form-control" id="inputEmail3" value="思思">
+                        <input type="text" name="nickname" class="form-control nickname" id="inputEmail3" value="思思">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="inputEmail3" class="col-sm-2 control-label">邮箱：</label>
+                    <label for="inputEmail3" name="email" class="col-sm-2 control-label">邮箱：</label>
                     <div class="col-sm-4">
-                        <input type="text" class="form-control" id="inputEmail3" value="lisisi@126.com">
+                        <input type="text" class="form-control email" id="inputEmail3" value="lisisi@126.com">
                     </div>
                 </div>
                 
@@ -44,7 +44,11 @@
                     <label for="inputPassword3" class="col-sm-2 control-label">用户图标：</label>
                     <div class="col-sm-10">
                         <img src="images/2.jpg" alt="" class="user_pic">
-                        <input type="file" id="exampleInputFile">
+                        <br>
+                        <label for="exampleInputFile">
+                            <img src="../web_back/images/uploadFileIcon.png" alt="">
+                        </label>
+                        <input type="file" name="user_pic" id="exampleInputFile" style="opacity:0">
                     </div>
                 </div>
 
@@ -65,6 +69,76 @@
         </div>
     </div>
 
+<script>
+//入口函数
+$(function(){
+    //图片预览
+    //给图片加一个改变事件
+    $('#exampleInputFile').on('change',function(){
+
+
+        var resImg=this.files[0];
+
+        //转换成url的格式
+        var url=URL.createObjectURL(resImg);
+
+        $('[class="user_pic"]').attr('src',url);
+    })
+
+    //页面一打开就发送ajax请求
+    $.ajax({
+
+        type:"get",
+        url:"http://localhost:8000/admin/userinfo_get",
+        success:function(backData){
+
+
+            //遍历对象
+            for(var key in backData.data){
+
+                $("."+key).val(backData.data[key])
+
+            }
+             $('[class="user_pic"]').attr("src",backData.data.user_pic)
+        }
+    });
+
+    $('.btn-success').on("click",function(e){
+        //清除掉submit的默认模式
+        e.preventDefault();
+        //获得用户输入的内容
+
+        var article_form=document.querySelector(".article_form")
+
+        var formData=new FormData(article_form);
+
+        console.log(formData);
+        
+        //发送ajax请求
+        $.ajax({
+            
+            type:"post",
+
+            url: 'http://localhost:8000/admin/userinfo_edit',
+
+            data :formData,
+            //去掉请求头
+            contentType:false,
+            //禁止改成字符串
+            processData:false,
+
+            success:function(backData){
+
+                console.log(backData);
+
+            }
+
+        })
+
+    })
+
+})
+</script>
 </body>
 
 </html>
