@@ -80,57 +80,148 @@
         </div>
     </div>
 
-    <div class="modal fade" id="addModal" >
+    <div class="modal fade" id="addModal">
         <div class="modal-dialog" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
-              <h4 class="modal-title">新增分类</h4>
-            </div>
-            <div class="modal-body">
-              <form>
-                <div class="form-group">
-                  <label for="recipient-name" class="control-label">分类名称:</label>
-                  <input type="text" class="form-control" id="recipient-name">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"></button>
+                    <h4 class="modal-title">新增分类</h4>
                 </div>
-                <div class="form-group">
-                  <label for="message-text" class="control-label">分类别名:</label>
-                  <input type="text" class="form-control" id="recipient-name">
+                <div class="modal-body">
+                    <form id="xinzeng">
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">分类名称:</label>
+                            <input type="text" class="form-control" id="recipient-name" name="name">
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="control-label">分类别名:</label>
+                            <input type="text" class="form-control" id="message-text" name="slug">
+                        </div>
+                    </form>
                 </div>
-              </form>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" id="model_shutoff">关闭</button>
+                    <button type="button" class="btn btn-primary" id="model_add">新增</button>
+                </div>
             </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-default" id="model_shutoff">关闭</button>
-              <button type="button" class="btn btn-primary" id="model_add">新增</button>
-            </div>
-          </div>
         </div>
-      </div>
+    </div>
+    <script src="./js/template-web.js"></script>
+    <script id="tmep_art" type="text/html">
+        {{each data}}
 
-      <script>
-          $('#addModal').modal({
-            show:false,
-            backdrop:false
-          });
+        <tr>
+            <td>{{$value.name}}</td>
+            <td>{{$value.slug}}</td>
+            <td class="text-center">
+                <a href="javascript:editTr({&quot;id&quot;:&quot;2&quot;,&quot;slug&quot;:&quot;funny&quot;,&quot;name&quot;:&quot;奇趣事&quot;});"
+                    class="btn btn-info btn-xs">编辑</a>
+                <a href="javascript:deleteTr({{$value.id}})" class="btn btn-danger btn-xs">删除</a>
+            </td>
+        </tr>
+        {{/each}}
+    </script>
 
-          $('#model_shutoff').click(function(){
+    <script>
+        $('#addModal').modal({
+            show: false,
+            backdrop: false
+        });
+
+        $('#model_shutoff').click(function () {
             alert('shutoff');
             $('#addModal').modal('hide');
-          });
+        });
 
-          $('#model_add').click(function(){
+        $('#model_add').click(function () {
             alert('add');
             $('#addModal').modal('hide');
-          });
+        });
 
-          $('.category_table').delegate('a','click',function(){
-              if($(this).hasClass('btn-info')){
+        $('.category_table').delegate('a', 'click', function () {
+            if ($(this).hasClass('btn-info')) {
                 $('#addModal .modal-title').html('修改分类名称');
                 $('#addModal').modal('show');
-              }
-          })      
-      </script>
+            }
+        })
+    </script>
+    <script>
+        //
+        $(function () {
+            //发送ajax请求
+            $.ajax({
+                type: "get",
 
+                url: "http://localhost:8000/admin/category_search ",
+
+                success: function (backData) {
+
+                    console.log(backData);
+
+                    var resHtml = template('tmep_art', backData);
+
+                    $('tbody').html(resHtml)
+                }
+
+            })
+            //给删除键一个点击事件
+            $('tbody').on("click", '.btn', function (e) { //注意委托事件的语法容易忘记
+
+                e.preventDefault();
+
+                $(this).parent().parent().remove("tr");
+                //發送ajax請求
+
+                $.ajax({
+                    type:'post',
+                    url:'http://localhost:8000/admin/category_delete',
+             
+                    success:function(backData){
+                        
+                        console.log(backData);
+                        
+                    }
+                })
+
+            })
+            //给新增分类一个点击事件
+            $('#model_add').on("click", function () {
+
+                //獲得用戶輸入的值
+                var recipientName = $('#recipient-name').val();
+                var messageText = $("#message-text").val()
+                console.log(recipientName + ":" + messageText);
+
+
+                //發送ajax請求
+                $.ajax({
+                    type: "post",
+
+                    url: "http://localhost:8000/admin/category_add",
+
+                    data: {
+                        name: recipientName,
+                        slug: messageText
+
+                    },
+                    success: function (backData) {
+
+                        console.log(backData);
+
+                        if (backData.code == 200) {
+                            //調用模板
+                            var resHtml = template('tmep_art', backData)
+                            //生成模板
+                            $('tbody').append(resHtml)
+                            //自己刷新
+                            window.location.href="./article_category.html"
+                        }
+
+                    }
+                })
+            })
+        })
+    </script>
 </body>
 
 </html>
