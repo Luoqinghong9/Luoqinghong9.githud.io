@@ -72,7 +72,8 @@
                 <tfoot>
                     <tr>
                         <td colspan="3" class="text-center">
-                            <a href="#" class="btn btn-success" data-toggle="modal" data-target="#addModal">新增分类</a>
+                            <a href="#" class="btn btn-success" data-toggle="modal" data-target="#addModal"
+                                id="xzfenLei">新增分类</a>
                         </td>
                     </tr>
                 </tfoot>
@@ -88,7 +89,8 @@
                     <h4 class="modal-title">新增分类</h4>
                 </div>
                 <div class="modal-body">
-                    <form id="xinzeng">
+                    <form>
+                        <input type="hidden" id="data-id" >
                         <div class="form-group">
                             <label for="recipient-name" class="control-label">分类名称:</label>
                             <input type="text" class="form-control" id="recipient-name" name="name">
@@ -109,15 +111,12 @@
     <script src="./js/template-web.js"></script>
     <script id="tmep_art" type="text/html">
         {{each data}}
-
         <tr>
             <td>{{$value.name}}</td>
             <td>{{$value.slug}}</td>
             <td class="text-center">
-                <a href="javascript:editTr({&quot;id&quot;:&quot;2&quot;,&quot;slug&quot;:&quot;funny&quot;,&quot;name&quot;:&quot;奇趣事&quot;});"
-                    class="btn btn-info btn-xs">编辑</a>
-                <a href="javascript:deleteTr({{$value.id}})" class="btn btn-danger btn-xs">删除</a>
-            </td>
+                <a href="javascript:void(0);" data-id="{{$value.id}}" class="btn btn-info btn-xs btn-bianji">编辑</a>
+                <a href="javascript:viod(0);" data-id="{{$value.id}}" class="btn btn-danger btn-xs btn-dele">删除</a>
         </tr>
         {{/each}}
     </script>
@@ -137,13 +136,6 @@
             alert('add');
             $('#addModal').modal('hide');
         });
-
-        $('.category_table').delegate('a', 'click', function () {
-            if ($(this).hasClass('btn-info')) {
-                $('#addModal .modal-title').html('修改分类名称');
-                $('#addModal').modal('show');
-            }
-        })
     </script>
     <script>
         //
@@ -165,60 +157,116 @@
 
             })
             //给删除键一个点击事件
-            $('tbody').on("click", '.btn', function (e) { //注意委托事件的语法容易忘记
+            $('tbody').on("click", '.btn-dele', function (e) { //注意委托事件的语法容易忘记
 
                 e.preventDefault();
+                var $that = $(this);
+                var dataID = $(this).attr("data-id");
 
-                $(this).parent().parent().remove("tr");
                 //發送ajax請求
 
                 $.ajax({
-                    type:'post',
-                    url:'http://localhost:8000/admin/category_delete',
-             
-                    success:function(backData){
-                        
+                    type: 'post',
+                    url: 'http://localhost:8000/admin/category_delete',
+                    data: {
+                        id: dataID
+                    },
+
+                    success: function (backData) {
+
                         console.log(backData);
-                        
+
+                        //修改成功后删除document的结构
+
+                        if (backData.code == 200) {
+
+                            $that.parent().parent().remove("tr");
+
+                        }
                     }
                 })
-
             })
+
+            //给编辑加点击事件件
+
+            $("tbody").on("click", ".btn-bianji", function () { //通过委托事件加点击事件
+                $('#addModal .modal-title').html('编辑分类名称');
+                $('#addModal').modal('show');
+                $("#model_add").html("保存").addClass("btn-success");
+                $("#recipient-name").val($(this).parent().prev().text())
+                $("#message-text").val($(this).parent().prev().prev().text());
+                $("#data-id").val($(this).attr("data-id"))
+            });
+
+            //给新增类别一个点击事件
+            $("#xzfenLei").on('click', function () {
+
+                $('#addModal .modal-title').html('新增分类名称');
+                $("#model_add").html("新增");
+                $("#model_add").removeClass("btn-success");
+            })
+
             //给新增分类一个点击事件
             $('#model_add').on("click", function () {
 
                 //獲得用戶輸入的值
                 var recipientName = $('#recipient-name').val();
                 var messageText = $("#message-text").val()
-                console.log(recipientName + ":" + messageText);
+                var dataID = $("#data-id").val()
+                console.log(recipientName + ":" + messageText + ":" + dataID);
 
+                if ($(this).hasClass("btn-success")) {
+                    //发送请求
+                    $.ajax({
+                        type: "post",
+                        url: "http://localhost:8000/admin/category_edit",
+                        data: {
+                            id: dataID,
+                            name: recipientName,
+                            slug: messageText,
+                        },
+                        success: function (backData) {
 
-                //發送ajax請求
-                $.ajax({
-                    type: "post",
+                            console.log(backData);
 
-                    url: "http://localhost:8000/admin/category_add",
-
-                    data: {
-                        name: recipientName,
-                        slug: messageText
-
-                    },
-                    success: function (backData) {
-
-                        console.log(backData);
-
-                        if (backData.code == 200) {
-                            //調用模板
-                            var resHtml = template('tmep_art', backData)
-                            //生成模板
-                            $('tbody').append(resHtml)
-                            //自己刷新
-                            window.location.href="./article_category.html"
+                            window.location.href = "./article_category.html"
                         }
+                    })
 
-                    }
-                })
+                } else {
+                    //發送ajax請求
+                    $.ajax({
+                        type: "post",
+
+                        url: "http://localhost:8000/admin/category_add",
+
+                        data: {
+                            name: recipientName,
+                            slug: messageText
+
+                        },
+
+                        success: function (backData) {
+
+                            console.log(backData);
+
+                            if (backData.code == 200) {
+
+                                //調用模板
+                                var resHtml = template('tmep_art', backData)
+                                //生成模板
+                                $('tbody').append(resHtml)
+                                //自己刷新
+                                window.location.href = "./article_category.html"
+                            }
+                        }
+                    })
+                }
+                //清空动框
+                 recipientName = $('#recipient-name').val('');
+                messageText = $("#message-text").val('')
+                dataID = $("#data-id").val('')
+
             })
         })
     </script>
