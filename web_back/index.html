@@ -112,7 +112,7 @@
             }
         }
     </script>
-    
+
     <script>
         //入口函数
         $(function () {
@@ -126,8 +126,8 @@
                     type: "post",
                     url: "https://autumnfish.cn/big/admin/logout",
 
-                    success:function (backData) {
-                        
+                    success: function (backData) {
+
                         console.log(backData);
 
                         if (backData.code == 200) {
@@ -137,24 +137,23 @@
                     }
                 })
             });
-         
+
             // 发送请求
             $.ajax({
-                type:'get',
+                type: 'get',
 
-                url:'http://localhost:8000/admin/getuser',
-               
-                success:function (backData){
+                url: 'http://localhost:8000/admin/getuser',
+
+                success: function (backData) {
 
                     console.log(backData);
-                    
+
                     $(".nickname").text(backData.data.nickname);
-                    $('[alt="person"]').attr("src",backData.data.user_pic);
+                    $('[alt="person"]').attr("src", backData.data.user_pic);
                 }
             });
 
         })
-
     </script>
 </body>
 

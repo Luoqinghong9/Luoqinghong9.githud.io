@@ -130,13 +130,13 @@ $(function(){
             success:function(backData){
 
                 console.log(backData);
+                parent.$(".nickname").text(backData.data.nickname);
+                parent.$('[alt="person"]').attr("src",backData.data.user_pic);
+
 
             }
-
         })
-
     })
-
 })
 </script>
 </body>
